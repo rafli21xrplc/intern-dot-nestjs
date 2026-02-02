@@ -1,0 +1,5 @@
+export enum UserRole {
+  PROJECT_MANAGER = 'PROJECT_MANAGER',
+  ENGINEER = 'ENGINEER',
+  CLIENT = 'CLIENT',
+}
