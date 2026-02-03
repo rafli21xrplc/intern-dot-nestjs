@@ -1,10 +1,13 @@
 import {
   IsNotEmpty,
   IsString,
-  IsInt,
   IsDateString,
   IsOptional,
+  IsEnum,
+  IsNumber,
+  IsUUID,
 } from 'class-validator';
+import { EstimateUnit } from '../estimate-unit.enum';
 
 export class CreateProjectDto {
   @IsNotEmpty()
@@ -20,12 +23,20 @@ export class CreateProjectDto {
   startDate: string;
 
   @IsNotEmpty()
-  @IsInt()
-  clientId: number;
+  @IsUUID()
+  clientId: string;
+
+  @IsOptional()
+  @IsNumber()
+  estimateValue?: number;
+
+  @IsOptional()
+  @IsEnum(EstimateUnit)
+  estimateUnit?: EstimateUnit;
 }
 
 export class AddEngineerDto {
   @IsNotEmpty()
-  @IsInt()
-  engineerId: number;
+  @IsUUID()
+  engineerId: string;
 }

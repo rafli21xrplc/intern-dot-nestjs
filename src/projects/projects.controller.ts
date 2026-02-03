@@ -6,7 +6,7 @@ import {
   UseGuards,
   Request,
   Param,
-  ParseIntPipe,
+  Delete,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ProjectsService, UserRequestData } from './projects.service';
@@ -33,10 +33,20 @@ export class ProjectsController {
 
   @Post(':id/engineers')
   addEngineer(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id') id: string,
     @Body() body: AddEngineerDto,
     @Request() req: RequestWithUser,
   ) {
     return this.projectsService.addEngineer(id, body.engineerId, req.user);
+  }
+
+  @Get(':id')
+  findOne(@Param('id') id: string, @Request() req: RequestWithUser) {
+    return this.projectsService.findOne(id, req.user);
+  }
+
+  @Delete(':id')
+  delete(@Param('id') id: string, @Request() req: RequestWithUser) {
+    return this.projectsService.delete(id, req.user);
   }
 }

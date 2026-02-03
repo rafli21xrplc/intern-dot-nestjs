@@ -10,23 +10,17 @@ import {
 } from 'typeorm';
 import { UserEntity } from '../../users/user.entity/user.entity';
 import { ProjectStatus } from '../project-status.enum';
+import { EstimateUnit } from '../estimate-unit.enum';
 
 @Entity('projects')
 export class ProjectEntity {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @Column()
   name: string;
-
-  @Column({ type: 'text', nullable: true })
-  description: string;
-
-  @Column({ type: 'date' })
-  startDate: Date;
-
-  @Column({ type: 'int', default: 0 })
-  progress: number;
+  @Column({ type: 'text', nullable: true }) description: string;
+  @Column({ type: 'date' }) startDate: Date;
 
   @Column({
     type: 'enum',
@@ -44,6 +38,18 @@ export class ProjectEntity {
   @ManyToMany(() => UserEntity, (user) => user.workingProjects)
   @JoinTable({ name: 'project_engineers' })
   engineers: UserEntity[];
+
+  @Column({ type: 'float', nullable: true })
+  estimateValue: number;
+
+  @Column({
+    type: 'enum',
+    enum: EstimateUnit,
+    default: EstimateUnit.DAYS,
+  })
+  estimateUnit: EstimateUnit;
+
+  @Column({ type: 'int', default: 0 }) progress: number;
 
   @CreateDateColumn()
   createdAt: Date;

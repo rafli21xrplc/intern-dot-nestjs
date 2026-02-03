@@ -11,7 +11,7 @@ import {
 import { CreateProjectDto } from './dto/project.dto';
 
 export interface UserRequestData {
-  userId: number;
+  userId: string;
   username: string;
   role: UserRole;
 }
@@ -39,6 +39,8 @@ export class ProjectsService {
       name: data.name,
       startDate: new Date(data.startDate),
       description: data.description,
+      estimateValue: data.estimateValue,
+      estimateUnit: data.estimateUnit,
       manager: manager,
       client: client,
     });
@@ -65,8 +67,8 @@ export class ProjectsService {
   }
 
   async addEngineer(
-    projectId: number,
-    engineerId: number,
+    projectId: string,
+    engineerId: string,
     user: UserRequestData,
   ) {
     if (user.role !== UserRole.PROJECT_MANAGER) throw new ForbiddenException();
@@ -89,5 +91,57 @@ export class ProjectsService {
       return this.projectRepo.save(project);
     }
     return project;
+  }
+
+  async findOne(id: string, user: UserRequestData) {
+    const project = await this.projectRepo.findOne({
+      where: { id },
+      relations: ['manager', 'client', 'engineers'],
+    });
+
+    if (!project) {
+      throw new NotFoundException('Project not found');
+    }
+
+    let hasAccess = false;
+
+    if (user.role === UserRole.PROJECT_MANAGER) {
+      hasAccess = project.manager.id === user.userId;
+    } else if (user.role === UserRole.ENGINEER) {
+      hasAccess = project.engineers.some((eng) => eng.id === user.userId);
+    } else if (user.role === UserRole.CLIENT) {
+      hasAccess = project.client.id === user.userId;
+    }
+
+    if (!hasAccess) {
+      throw new ForbiddenException(
+        'You do not have access to this project details',
+      );
+    }
+
+    return project;
+  }
+
+  async delete(id: string, user: UserRequestData) {
+    if (user.role !== UserRole.PROJECT_MANAGER) {
+      throw new ForbiddenException('Only Project Manager can delete projects');
+    }
+
+    const project = await this.projectRepo.findOne({
+      where: { id },
+      relations: ['manager'],
+    });
+
+    if (!project) {
+      throw new NotFoundException('Project not found');
+    }
+
+    if (project.manager.id !== user.userId) {
+      throw new ForbiddenException(
+        'You cannot delete a project you do not manage',
+      );
+    }
+
+    return this.projectRepo.delete(id);
   }
 }

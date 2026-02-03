@@ -13,12 +13,12 @@ export class UsersService {
     @InjectRepository(UserEntity)
     private repo: Repository<UserEntity>,
   ) {}
-  async create(userData: any): Promise<UserEntity> {
+  async create(userData: unknown): Promise<UserEntity> {
     const user = this.repo.create(userData as UserEntity);
     try {
       return await this.repo.save(user);
-    } catch (error) {
-      if (error === '23505') {
+    } catch (error: unknown) {
+      if ((error as any) === '23505') {
         throw new ConflictException('Username already exists');
       }
       throw new InternalServerErrorException();
@@ -34,7 +34,7 @@ export class UsersService {
     return user || undefined;
   }
 
-  async findById(id: number): Promise<UserEntity | undefined> {
+  async findById(id: string): Promise<UserEntity | undefined> {
     const user = await this.repo.findOneBy({ id });
     return user || undefined;
   }
