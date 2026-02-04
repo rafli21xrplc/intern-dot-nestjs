@@ -24,6 +24,13 @@ export class UsersService {
       throw new InternalServerErrorException();
     }
   }
+  async findAll() {
+    return this.repo.find({
+      select: ['id', 'username', 'role', 'specialization', 'createdAt'],
+      order: { username: 'ASC' },
+    });
+  }
+
   async findOne(username: string): Promise<UserEntity | undefined> {
     const user = await this.repo
       .createQueryBuilder('user')

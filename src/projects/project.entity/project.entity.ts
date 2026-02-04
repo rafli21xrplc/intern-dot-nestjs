@@ -7,10 +7,13 @@ import {
   JoinTable,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToMany,
 } from 'typeorm';
 import { UserEntity } from '../../users/user.entity/user.entity';
 import { ProjectStatus } from '../project-status.enum';
 import { EstimateUnit } from '../estimate-unit.enum';
+import { ActivityLogEntity } from 'src/activities/activity-log.entity';
+import { ActivityEntity } from 'src/activities/activity.entity';
 
 @Entity('projects')
 export class ProjectEntity {
@@ -38,6 +41,12 @@ export class ProjectEntity {
   @ManyToMany(() => UserEntity, (user) => user.workingProjects)
   @JoinTable({ name: 'project_engineers' })
   engineers: UserEntity[];
+
+  @OneToMany(() => ActivityEntity, (activity) => activity.project)
+  activities: ActivityEntity[];
+
+  @OneToMany(() => ActivityLogEntity, (log) => log.project)
+  logs: ActivityLogEntity[];
 
   @Column({ type: 'float', nullable: true })
   estimateValue: number;

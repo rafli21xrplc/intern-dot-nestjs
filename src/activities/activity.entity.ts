@@ -31,7 +31,9 @@ export class ActivityEntity {
   @Column({ default: 'OPEN' })
   status: string;
 
-  @ManyToOne(() => ProjectEntity, { onDelete: 'CASCADE' })
+  @ManyToOne(() => ProjectEntity, (project) => project.activities, {
+    onDelete: 'CASCADE',
+  })
   project: ProjectEntity;
 
   @ManyToOne(() => UserEntity, { nullable: true })

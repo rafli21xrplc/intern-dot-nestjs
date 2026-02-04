@@ -8,6 +8,7 @@ import {
   IsUUID,
 } from 'class-validator';
 import { EstimateUnit } from '../estimate-unit.enum';
+import { ProjectStatus } from '../project-status.enum';
 
 export class CreateProjectDto {
   @IsNotEmpty()
@@ -39,4 +40,30 @@ export class AddEngineerDto {
   @IsNotEmpty()
   @IsUUID()
   engineerId: string;
+}
+
+export class UpdateProjectDto {
+  @IsOptional()
+  @IsString()
+  name?: string;
+
+  @IsOptional()
+  @IsString()
+  description?: string;
+
+  @IsOptional()
+  @IsDateString()
+  startDate?: string;
+
+  @IsOptional()
+  @IsEnum(ProjectStatus)
+  status?: ProjectStatus;
+
+  @IsOptional()
+  @IsNumber()
+  estimateValue?: number;
+
+  @IsOptional()
+  @IsEnum(EstimateUnit)
+  estimateUnit?: EstimateUnit;
 }

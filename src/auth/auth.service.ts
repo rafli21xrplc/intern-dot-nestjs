@@ -29,6 +29,12 @@ export class AuthService {
       };
       return {
         access_token: this.jwtService.sign(payload),
+        user: {
+          id: user.id,
+          username: user.username,
+          role: user.role,
+          specialization: user.specialization,
+        },
       };
     }
     throw new UnauthorizedException('Username atau Password salah');

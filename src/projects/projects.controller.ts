@@ -7,10 +7,16 @@ import {
   Request,
   Param,
   Delete,
+  Patch,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ProjectsService, UserRequestData } from './projects.service';
-import { CreateProjectDto, AddEngineerDto } from './dto/project.dto';
+import {
+  CreateProjectDto,
+  AddEngineerDto,
+  UpdateProjectDto,
+} from './dto/project.dto';
 
 interface RequestWithUser extends Request {
   user: UserRequestData;
@@ -43,6 +49,15 @@ export class ProjectsController {
   @Get(':id')
   findOne(@Param('id') id: string, @Request() req: RequestWithUser) {
     return this.projectsService.findOne(id, req.user);
+  }
+
+  @Patch(':id')
+  update(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() body: UpdateProjectDto,
+    @Request() req: RequestWithUser,
+  ) {
+    return this.projectsService.update(id, body, req.user);
   }
 
   @Delete(':id')

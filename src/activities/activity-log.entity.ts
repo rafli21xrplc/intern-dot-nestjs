@@ -7,6 +7,7 @@ import {
 } from 'typeorm';
 import { ActivityEntity } from './activity.entity';
 import { UserEntity } from '../users/user.entity/user.entity';
+import { ProjectEntity } from 'src/projects/project.entity/project.entity';
 
 @Entity('activity_logs')
 export class ActivityLogEntity {
@@ -18,6 +19,11 @@ export class ActivityLogEntity {
 
   @Column({ type: 'text', nullable: true })
   details: string;
+
+  @ManyToOne(() => ProjectEntity, (project) => project.logs, {
+    onDelete: 'CASCADE',
+  })
+  project: ProjectEntity;
 
   @ManyToOne(() => ActivityEntity, (activity) => activity.logs, {
     onDelete: 'CASCADE',

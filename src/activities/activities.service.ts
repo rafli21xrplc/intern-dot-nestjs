@@ -29,6 +29,8 @@ export class ActivitiesService {
     private activityRepo: Repository<ActivityEntity>,
     @InjectRepository(ActivityLogEntity)
     private logRepo: Repository<ActivityLogEntity>,
+    @InjectRepository(ProjectEntity)
+    private projectRepo: Repository<ProjectEntity>,
   ) {}
 
   async create(dto: CreateActivityDto, user: UserRequestData) {
@@ -36,12 +38,18 @@ export class ActivitiesService {
       throw new ForbiddenException('Client cannot create activities');
     }
 
+    const project = await this.projectRepo.findOneBy({ id: dto.projectId });
+
+    if (!project) {
+      throw new NotFoundException(`Project with ID ${dto.projectId} not found`);
+    }
+
     const newActivity = this.activityRepo.create({
       name: dto.name,
       description: dto.description,
       imageUrl: dto.imageUrl,
       issue: dto.issue,
-      project: { id: dto.projectId } as ProjectEntity,
+      project: project,
       assignee: { id: user.userId } as UserEntity,
     });
 
@@ -49,6 +57,7 @@ export class ActivitiesService {
 
     await this.logActivity(
       savedActivity,
+      project,
       user.userId,
       'CREATED',
       'Activity created',
@@ -62,7 +71,11 @@ export class ActivitiesService {
       throw new ForbiddenException('Client cannot update activity details');
     }
 
-    const activity = await this.activityRepo.findOneBy({ id });
+    const activity = await this.activityRepo.findOne({
+      where: { id },
+      relations: ['project'],
+    });
+
     if (!activity) throw new NotFoundException('Activity not found');
 
     if (dto.name) activity.name = dto.name;
@@ -74,6 +87,7 @@ export class ActivitiesService {
 
     await this.logActivity(
       savedActivity,
+      activity.project,
       user.userId,
       'UPDATE',
       'Activity details updated',
@@ -87,7 +101,11 @@ export class ActivitiesService {
       throw new ForbiddenException('Client cannot update status');
     }
 
-    const activity = await this.activityRepo.findOneBy({ id });
+    const activity = await this.activityRepo.findOne({
+      where: { id },
+      relations: ['project'],
+    });
+
     if (!activity) throw new NotFoundException('Activity not found');
 
     const oldStatus = activity.status;
@@ -96,6 +114,7 @@ export class ActivitiesService {
 
     await this.logActivity(
       activity,
+      activity.project,
       user.userId,
       'STATUS_CHANGE',
       `Status changed from ${oldStatus} to ${status}`,
@@ -120,13 +139,20 @@ export class ActivitiesService {
       );
     }
 
-    await this.logActivity(activity, user.userId, 'FEEDBACK', dto.message);
+    await this.logActivity(
+      activity,
+      activity.project,
+      user.userId,
+      'FEEDBACK',
+      dto.message,
+    );
 
     return { message: 'Feedback added successfully' };
   }
 
   private async logActivity(
-    activity: ActivityEntity,
+    activity: ActivityEntity | null,
+    project: ProjectEntity,
     userId: string,
     action: string,
     details: string,
@@ -134,7 +160,8 @@ export class ActivitiesService {
     const log = this.logRepo.create({
       action,
       details,
-      activity,
+      activity: activity || undefined,
+      project,
       performedBy: { id: userId } as UserEntity,
     });
     return this.logRepo.save(log);

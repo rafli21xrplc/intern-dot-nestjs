@@ -8,7 +8,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { CreateProjectDto } from './dto/project.dto';
+import { CreateProjectDto, UpdateProjectDto } from './dto/project.dto';
 
 export interface UserRequestData {
   userId: string;
@@ -96,7 +96,23 @@ export class ProjectsService {
   async findOne(id: string, user: UserRequestData) {
     const project = await this.projectRepo.findOne({
       where: { id },
-      relations: ['manager', 'client', 'engineers'],
+      relations: [
+        'manager',
+        'client',
+        'engineers',
+        'activities',
+        'activities.assignee',
+        'activities.logs',
+        'activities.logs.performedBy',
+      ],
+      order: {
+        activities: {
+          createdAt: 'DESC',
+          logs: {
+            timestamp: 'DESC',
+          },
+        },
+      },
     });
 
     if (!project) {
@@ -120,6 +136,34 @@ export class ProjectsService {
     }
 
     return project;
+  }
+
+  async update(id: string, dto: UpdateProjectDto, user: UserRequestData) {
+    if (user.role !== UserRole.PROJECT_MANAGER) {
+      throw new ForbiddenException('Only Project Manager can update projects');
+    }
+
+    const project = await this.projectRepo.findOne({
+      where: { id },
+      relations: ['manager'],
+    });
+
+    if (!project) {
+      throw new NotFoundException('Project not found');
+    }
+
+    if (project.manager.id !== user.userId) {
+      throw new ForbiddenException('You can only update your own projects');
+    }
+
+    if (dto.name) project.name = dto.name;
+    if (dto.description) project.description = dto.description;
+    if (dto.startDate) project.startDate = new Date(dto.startDate);
+    if (dto.status) project.status = dto.status;
+    if (dto.estimateValue) project.estimateValue = dto.estimateValue;
+    if (dto.estimateUnit) project.estimateUnit = dto.estimateUnit;
+
+    return this.projectRepo.save(project);
   }
 
   async delete(id: string, user: UserRequestData) {
