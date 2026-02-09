@@ -10,6 +10,7 @@ import {
 import { ProjectEntity } from '../projects/project.entity/project.entity';
 import { UserEntity } from '../users/user.entity/user.entity';
 import { ActivityLogEntity } from './activity-log.entity';
+import { ActivityStatus } from './activity-status.enum';
 
 @Entity('activities')
 export class ActivityEntity {
@@ -28,8 +29,12 @@ export class ActivityEntity {
   @Column({ nullable: true })
   issue: string;
 
-  @Column({ default: 'OPEN' })
-  status: string;
+  @Column({
+    type: 'enum',
+    enum: ActivityStatus,
+    default: ActivityStatus.PLANNING,
+  })
+  status: ActivityStatus;
 
   @ManyToOne(() => ProjectEntity, (project) => project.activities, {
     onDelete: 'CASCADE',

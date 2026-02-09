@@ -9,6 +9,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { CreateProjectDto, UpdateProjectDto } from './dto/project.dto';
+import { ProjectStatus } from './project-status.enum';
 
 export interface UserRequestData {
   userId: string;
@@ -162,6 +163,26 @@ export class ProjectsService {
     if (dto.status) project.status = dto.status;
     if (dto.estimateValue) project.estimateValue = dto.estimateValue;
     if (dto.estimateUnit) project.estimateUnit = dto.estimateUnit;
+
+    if (dto.clientId) {
+      const client = await this.usersService.findById(dto.clientId);
+      if (!client) {
+        throw new NotFoundException('Client not found');
+      }
+      project.client = client;
+    }
+
+    return this.projectRepo.save(project);
+  }
+
+  async updateStatus(id: string, status: ProjectStatus, user: UserRequestData) {
+    if (user.role !== UserRole.PROJECT_MANAGER) {
+      throw new ForbiddenException('Only Project Manager can update projects');
+    }
+
+    const project = await this.findOne(id, user);
+
+    project.status = status;
 
     return this.projectRepo.save(project);
   }

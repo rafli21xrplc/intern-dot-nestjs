@@ -15,6 +15,7 @@ import {
 import { ProjectEntity } from '../projects/project.entity/project.entity';
 import { UserEntity } from '../users/user.entity/user.entity';
 import { UserRole } from 'src/users/user-role.enum';
+import { ActivityStatus } from './activity-status.enum';
 
 interface UserRequestData {
   userId: string;
@@ -96,7 +97,11 @@ export class ActivitiesService {
     return savedActivity;
   }
 
-  async updateStatus(id: string, status: string, user: UserRequestData) {
+  async updateStatus(
+    id: string,
+    status: ActivityStatus,
+    user: UserRequestData,
+  ) {
     if (user.role === UserRole.CLIENT) {
       throw new ForbiddenException('Client cannot update status');
     }
@@ -108,7 +113,6 @@ export class ActivitiesService {
 
     if (!activity) throw new NotFoundException('Activity not found');
 
-    const oldStatus = activity.status;
     activity.status = status;
     await this.activityRepo.save(activity);
 
@@ -117,7 +121,7 @@ export class ActivitiesService {
       activity.project,
       user.userId,
       'STATUS_CHANGE',
-      `Status changed from ${oldStatus} to ${status}`,
+      `Status changed ${status}`,
     );
 
     return activity;

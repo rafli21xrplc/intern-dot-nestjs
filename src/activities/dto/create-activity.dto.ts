@@ -1,4 +1,5 @@
 import { IsNotEmpty, IsString, IsOptional, IsUUID } from 'class-validator';
+import { ActivityStatus } from '../activity-status.enum';
 
 export class CreateActivityDto {
   @IsNotEmpty()
@@ -25,7 +26,7 @@ export class CreateActivityDto {
 export class UpdateStatusDto {
   @IsString()
   @IsNotEmpty()
-  status: string;
+  status: ActivityStatus;
 }
 
 export class UpdateActivityDto {

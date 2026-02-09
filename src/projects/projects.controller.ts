@@ -17,6 +17,7 @@ import {
   AddEngineerDto,
   UpdateProjectDto,
 } from './dto/project.dto';
+import { ProjectStatus } from './project-status.enum';
 
 interface RequestWithUser extends Request {
   user: UserRequestData;
@@ -49,6 +50,15 @@ export class ProjectsController {
   @Get(':id')
   findOne(@Param('id') id: string, @Request() req: RequestWithUser) {
     return this.projectsService.findOne(id, req.user);
+  }
+
+  @Patch(':id/status')
+  updateStatus(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body('status') status: ProjectStatus,
+    @Request() req: RequestWithUser,
+  ) {
+    return this.projectsService.updateStatus(id, status, req.user);
   }
 
   @Patch(':id')

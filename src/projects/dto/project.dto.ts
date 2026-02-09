@@ -60,6 +60,10 @@ export class UpdateProjectDto {
   status?: ProjectStatus;
 
   @IsOptional()
+  @IsUUID()
+  clientId?: string;
+
+  @IsOptional()
   @IsNumber()
   estimateValue?: number;
 
