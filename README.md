@@ -4,6 +4,16 @@ Project ini dibangun di atas framework **NestJS** dan menerapkan **Modular Archi
 
 Berikut adalah alasan mengapa pattern ini digunakan:
 
+### [I]. Video Penjelasan
+### 1. FLOW WEB APP : https://youtu.be/AHZSTqgQi6c
+### 2   . ENDPOINT POSTMANT : https://youtu.be/q-tBrTp_2wM
+### 3. DATABASE : https://youtu.be/JteMnxzkmhY
+### 4. TESTING E2E : https://youtu.be/tWyS7qS4LWo
+### 5. REASON : https://youtu.be/iNgAHNOaTjI
+
+### [I]. SOURCE ENDPOINT POSTMAN
+### https://blue-resonance-779696.postman.co/workspace/My-Workspace~0793df4e-fd03-41cd-8d59-52cc7cc379c7/collection/23518246-45098e55-1a46-4d84-9b6f-84c1bc0a8c85?action=share&creator=23518246&active-environment=23518246-e40e6321-f1d2-4bd6-b7bf-76bd71c15ebb
+
 ### 1. Modular Architecture (Pemisahan per Fitur)
 Alih-alih menyatukan semua kode dalam satu tempat, aplikasi ini dibagi menjadi beberapa modul independen berdasarkan domain bisnisnya (contoh: `AuthModule`, `UsersModule`, `ProjectsModule`, `ActivitiesModule`).
 * **Mengapa?** Memudahkan navigasi kode, mencegah konflik antar tim jika dikerjakan bersama (collaboration-friendly), dan memungkinkan fitur tertentu untuk diisolasi atau di-*scale* secara terpisah (Microservices readiness).
